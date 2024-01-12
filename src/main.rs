@@ -1,14 +1,15 @@
 #[macro_use]
 extern crate rocket;
 
+mod handlers;
 mod models;
 
-#[get("/hi")]
-fn init() -> String {
-    format!("Hi there!")
-}
+use handlers::*;
 
 #[launch]
 fn rocket() -> _ {
-    rocket::build().mount("/api/v1", routes![init])
+    rocket::build().mount(
+        "/",
+        routes![create_question, read_questions, delete_question],
+    )
 }
