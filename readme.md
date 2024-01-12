@@ -175,6 +175,6 @@ Sample response
 - Using a backend framework (`Rocket`)
 - Using a database (`PostgreSQL`)
 - Using third-party crates (`tokio`)
-- Writing testable code (`TDD`, `sqlx`)
+- Writing testable code (`TDD`)
 - Organizing code using modules
 - Navigating and contributing to an existing code base
