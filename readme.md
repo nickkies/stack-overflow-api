@@ -21,8 +21,8 @@ curl --request POST \
   --url http://localhost:8000/question \
   --header 'Accept: application/json' \
   --data '{
-    "title": "Title",
-    "description": "Description"
+    "title": "Newly Created Question",
+    "description": "My Description"
   }'
 ```
 
@@ -77,7 +77,7 @@ curl --request DELETE \
   --url http://localhost:8000/question \
   --header 'Accept: application/json' \
   --data '{
-    "question_uuid": "[UUID of a created question]"
+    "question_uuid": "b068cd2f-edac-479e-98f1-c5f91008dcbd"
   }'
 ```
 
@@ -100,7 +100,7 @@ curl --request POST \
   --url http://localhost:8000/answer \
   --header 'Accept: application/json' \
   --data '{
-    "question_uuid": "[UUID of a created question]",
+    "question_uuid": "b068cd2f-edac-479e-98f1-c5f91008dcbd",
     "content": "Content"
   }'
 ```
@@ -129,7 +129,7 @@ curl --request GET \
   --url http://localhost:8000/answers \
   --header 'Accept: application/json' \
   --data '{
-    "question_uuid": "[UUID of a created question]"
+    "question_uuid": "b068cd2f-edac-479e-98f1-c5f91008dcbd"
   }'
 ```
 
