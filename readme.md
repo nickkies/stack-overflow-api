@@ -101,7 +101,7 @@ curl --request POST \
   --header 'Accept: application/json' \
   --data '{
     "question_uuid": "b068cd2f-edac-479e-98f1-c5f91008dcbd",
-    "content": "Content"
+    "content": "test question"
   }'
 ```
 
@@ -159,7 +159,7 @@ curl --request DELETE \
   --url http://localhost:8000/answer \
   --header 'Accept: application/json' \
   --data '{
-    "answer_uuid": "[UUID of a created answer]"
+    "answer_uuid": "a1a14a9c-ab9e-481b-8120-67f675531ed2"
   }'
 ```
 
