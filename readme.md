@@ -6,7 +6,13 @@
 cargo watch -q -c -w src/ -x run
 ```
 
-## Table structure
+## PostgreSQL Database
+
+### Docker Hub (🔒️private repo)
+
+```shell
+docker pull opqudk/stack-overflow-db:1.0
+```
 
 ### Question
 
