@@ -6,6 +6,26 @@
 cargo watch -q -c -w src/ -x run
 ```
 
+## Table structure
+
+### Question
+
+| Name          | Type         | Description                                  |
+| ------------- | ------------ | -------------------------------------------- |
+| question_uuid | UUID         | Generated identifier unique to each question |
+| title         | VARCHAR(255) | Title of the question                        |
+| description   | VARCHAR(255) | Description of the question                  |
+| created_at    | TIMESTAMP    | Creation timestamp of the question           |
+
+### Answer
+
+| Name          | Type         | Description                                  |
+| ------------- | ------------ | -------------------------------------------- |
+| answer_uuid   | UUID         | Generated identifier unique to each answer   |
+| question_uuid | UUID         | Generated identifier unique to each question |
+| content       | VARCHAR(255) | Content of the answer                        |
+| created_at    | TIMESTAMP    | Creation timestamp of the answer             |
+
 ## **API (endpoints & models)**
 
 ### Questions
