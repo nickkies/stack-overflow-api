@@ -32,7 +32,7 @@ mod questions_tests {
             Ok(())
         } else {
             Err(format!(
-                "Expected an invalid UUID error but got the following error: {:?}",
+                "Expected an Other error but got the following error: {:?}",
                 result.err()
             ))
         }
