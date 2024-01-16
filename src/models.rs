@@ -7,7 +7,7 @@ pub struct Question {
     pub description: String,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct QuestionDetail {
     pub question_uuid: String,
     pub title: String,
