@@ -1,9 +1,11 @@
+DROP TABLE IF EXISTS question, answer;
+
 -- question table
-CREATE TABLE question (
-    question_uuid UUID PRIMARY KEY,
-    title VARCHAR(255),
-    description VARCHAR(255),
-    created_at TIMESTAMP
+CREATE TABLE IF NOT EXISTS question (
+    question_uuid UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    title VARCHAR(255) NOT NULL,
+    description VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 COMMENT ON TABLE question IS 'Question table';
@@ -14,12 +16,11 @@ COMMENT ON COLUMN question.description IS 'Description of the question';
 COMMENT ON COLUMN question.created_at IS 'Creation timestamp of the question';
 
 -- answer table
-CREATE TABLE answer (
-    answer_uuid UUID PRIMARY KEY,
-    question_uuid UUID,
-    content VARCHAR(255),
-    created_at TIMESTAMP,
-    FOREIGN KEY (question_uuid) REFERENCES question(question_uuid)
+CREATE TABLE IF NOT EXISTS answer (
+    answer_uuid UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    question_uuid UUID NOT NULL REFERENCES question (question_uuid) ON DELETE CASCADE,
+    content VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 COMMENT ON TABLE answer IS 'Answer talbe';
