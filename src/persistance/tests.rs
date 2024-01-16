@@ -37,6 +37,27 @@ mod questions_tests {
             ))
         }
     }
+
+    #[sqlx::test]
+    async fn create_question_should_succeed(pool: PgPool) -> Result<(), String> {
+        let dao = QuestionDaoImpl::new(pool);
+
+        let result = dao
+            .create_question(Question {
+                title: "test title".to_string(),
+                description: "test description".to_string(),
+            })
+            .await
+            .map_err(|e| format!("{e:?}"))?;
+
+        if result.title != "test title".to_string()
+            || result.description != "test description".to_string()
+        {
+            Err("Incorrect title or description".to_string())
+        } else {
+            Ok(())
+        }
+    }
 }
 
 mod answer_tests {}
