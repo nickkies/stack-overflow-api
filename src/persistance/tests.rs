@@ -28,7 +28,7 @@ mod questions_tests {
             ));
         }
 
-        if let Err(DBError::InvalidUUID(_)) = result {
+        if let Err(DBError::Other(_)) = result {
             Ok(())
         } else {
             Err(format!(
