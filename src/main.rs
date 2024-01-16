@@ -8,6 +8,7 @@ extern crate pretty_env_logger;
 mod cors;
 mod handlers;
 mod models;
+mod persistance;
 
 use cors::*;
 use dotenvy::dotenv;
