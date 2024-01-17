@@ -1,6 +1,8 @@
 use crate::models::*;
 use rocket::serde::json::Json;
 
+mod handlers_inner;
+
 #[post("/question", data = "<question>")]
 pub async fn create_question(question: Json<Question>) -> Json<QuestionDetail> {
     Json(QuestionDetail {
