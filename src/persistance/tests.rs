@@ -1,15 +1,29 @@
-mod questions_tests {
-    use sqlx::PgPool;
+mod test_util {
+    use dotenvy::dotenv;
+    use sqlx::{postgres::PgPoolOptions, PgPool};
 
+    pub async fn create_test_pool() -> PgPool {
+        dotenv().ok();
+
+        PgPoolOptions::new()
+            .max_connections(1)
+            .connect(&std::env::var("DATABASE_URL").expect("DATABASE_URL must be set."))
+            .await
+            .expect("Failed to create Postgres connection pool!")
+    }
+}
+
+mod questions_tests {
     use crate::{
         models::{DBError, Question},
         persistance::question_dao::{QuestionDao, QuestionDaoImpl},
     };
 
-    #[sqlx::test]
-    async fn create_question_should_fail_if_database_error_occurs(
-        pool: PgPool,
-    ) -> Result<(), String> {
+    use super::test_util::create_test_pool;
+
+    #[tokio::test]
+    async fn create_question_should_fail_if_database_error_occurs() -> Result<(), String> {
+        let pool = create_test_pool().await;
         let dao = QuestionDaoImpl::new(pool.clone());
 
         pool.close().await;
@@ -38,8 +52,9 @@ mod questions_tests {
         }
     }
 
-    #[sqlx::test]
-    async fn create_question_should_succeed(pool: PgPool) -> Result<(), String> {
+    #[tokio::test]
+    async fn create_question_should_succeed() -> Result<(), String> {
+        let pool = create_test_pool().await;
         let dao = QuestionDaoImpl::new(pool);
 
         let result = dao
