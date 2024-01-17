@@ -81,4 +81,27 @@ mod tests {
             std::mem::discriminant(&HandlerError::InernalError("".to_string()))
         );
     }
+
+    #[tokio::test]
+    async fn create_question_should_return_question() {
+        let question = Question {
+            title: "test title".to_string(),
+            description: "test description".to_string(),
+        };
+        let question_detail = QuestionDetail {
+            question_uuid: "123".to_string(),
+            title: question.title.clone(),
+            description: question.description.clone(),
+            created_at: "now".to_string(),
+        };
+        let mut mock_dao = QuestionDaoMock::new();
+
+        mock_dao.mock_create_question(Ok(question_detail.clone()));
+
+        let dao: Box<dyn QuestionDao + Send + Sync> = Box::new(mock_dao);
+        let result = create_question(question, &dao).await;
+
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), question_detail);
+    }
 }
