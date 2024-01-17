@@ -1,6 +1,7 @@
-use crate::persistance::question_dao::QuestionDao;
-
-use super::{Question, QuestionDetail};
+use crate::{
+    models::{DBError, Question, QuestionDetail},
+    persistance::question_dao::QuestionDao,
+};
 
 #[derive(Debug, PartialEq)]
 pub enum HandlerError {
@@ -25,6 +26,39 @@ pub async fn create_question(
         Err(e) => {
             error!("{e:?}");
             Err(HandlerError::default_internal_error())
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use tokio::sync::Mutex;
+
+    struct QuestionDaoMock {
+        create_question_response: Mutex<Option<Result<QuestionDetail, DBError>>>,
+    }
+
+    impl QuestionDaoMock {
+        fn new() -> Self {
+            Self {
+                create_question_response: Mutex::new(None),
+            }
+        }
+
+        fn mock_create_question(&mut self, response: Result<QuestionDetail, DBError>) {
+            self.create_question_response = Mutex::new(Some(response))
+        }
+    }
+
+    #[async_trait]
+    impl QuestionDao for QuestionDaoMock {
+        async fn create_question(&self, _: Question) -> Result<QuestionDetail, DBError> {
+            self.create_question_response
+                .lock()
+                .await
+                .take()
+                .expect("create question response should not be None.")
         }
     }
 }

@@ -6,8 +6,8 @@ use crate::models::{DBError, Question, QuestionDetail, QuestionId};
 #[async_trait]
 pub trait QuestionDao {
     async fn create_question(&self, question: Question) -> Result<QuestionDetail, DBError>;
-    async fn get_questions(&self) -> Result<Vec<QuestionDetail>, DBError>;
-    async fn delete_question(&self, question_uuid: QuestionId) -> Result<(), DBError>;
+    // async fn get_questions(&self) -> Result<Vec<QuestionDetail>, DBError>;
+    // async fn delete_question(&self, question_uuid: QuestionId) -> Result<(), DBError>;
 }
 
 pub struct QuestionDaoImpl {
@@ -44,11 +44,11 @@ impl QuestionDao for QuestionDaoImpl {
         })
     }
 
-    async fn get_questions(&self) -> Result<Vec<QuestionDetail>, DBError> {
-        todo!();
-    }
+    // async fn get_questions(&self) -> Result<Vec<QuestionDetail>, DBError> {
+    //     todo!();
+    // }
 
-    async fn delete_question(&self, question_uuid: QuestionId) -> Result<(), DBError> {
-        todo!();
-    }
+    // async fn delete_question(&self, question_uuid: QuestionId) -> Result<(), DBError> {
+    //     todo!();
+    // }
 }
