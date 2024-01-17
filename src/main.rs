@@ -26,17 +26,6 @@ async fn rocket() -> _ {
         .await
         .expect("Failed to create Postgres connection pool!");
 
-    // TODO Remove
-    tokio::spawn(async move {
-        let questions = sqlx::query!("SELECT * FROM question")
-            .fetch_all(&pool)
-            .await
-            .expect("Failed to execute query.");
-
-        debug!("********* Question Records *********");
-        debug!("{questions:?}");
-    });
-
     rocket::build()
         .mount(
             "/",
