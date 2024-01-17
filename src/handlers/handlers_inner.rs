@@ -61,4 +61,24 @@ mod tests {
                 .expect("create question response should not be None.")
         }
     }
+
+    #[tokio::test]
+    async fn create_question_should_return_error() {
+        let question = Question {
+            title: "test title".to_string(),
+            description: "test description".to_string(),
+        };
+        let mut mock_dao = QuestionDaoMock::new();
+
+        mock_dao.mock_create_question(Err(DBError::InvalidUUID("test".to_string())));
+
+        let dao: Box<dyn QuestionDao + Send + Sync> = Box::new(mock_dao);
+        let result = create_question(question, &dao).await;
+
+        assert!(result.is_err());
+        assert_eq!(
+            std::mem::discriminant(&result.unwrap_err()),
+            std::mem::discriminant(&HandlerError::InernalError("".to_string()))
+        );
+    }
 }
