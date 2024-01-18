@@ -36,12 +36,16 @@ impl QuestionDao for QuestionDaoImpl {
         .await
         .map_err(|e| DBError::Other(Box::new(e)))?;
 
-        Ok(QuestionDetail {
+        let question = QuestionDetail {
             question_uuid: record.question_uuid.to_string(),
             title: record.title,
             description: record.description,
             created_at: record.created_at.to_string(),
-        })
+        };
+
+        debug!("create_question: {question:?}");
+
+        Ok(question)
     }
 
     async fn get_questions(&self) -> Result<Vec<QuestionDetail>, DBError> {
@@ -60,6 +64,8 @@ impl QuestionDao for QuestionDaoImpl {
                 created_at: r.created_at.to_string(),
             })
             .collect();
+
+        debug!("get_questions: {questions:?}");
 
         Ok(questions)
     }
