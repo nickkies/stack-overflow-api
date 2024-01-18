@@ -13,6 +13,7 @@ mod persistance;
 use cors::*;
 use dotenvy::dotenv;
 use handlers::*;
+use persistance::question_dao::{QuestionDao, QuestionDaoImpl};
 use sqlx::postgres::PgPoolOptions;
 
 #[launch]
@@ -25,6 +26,8 @@ async fn rocket() -> _ {
         .connect(&std::env::var("DATABASE_URL").expect("DATABASE_URL must be set."))
         .await
         .expect("Failed to create Postgres connection pool!");
+
+    let question_dao = QuestionDaoImpl::new(pool);
 
     rocket::build()
         .mount(
@@ -39,4 +42,5 @@ async fn rocket() -> _ {
             ],
         )
         .attach(CORS)
+        .manage(Box::new(question_dao) as Box<dyn QuestionDao + Send + Sync>)
 }

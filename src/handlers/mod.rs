@@ -1,16 +1,18 @@
-use crate::models::*;
-use rocket::serde::json::Json;
+use crate::{models::*, persistance::question_dao::QuestionDao};
+use rocket::{serde::json::Json, State};
 
 mod handlers_inner;
 
 #[post("/question", data = "<question>")]
-pub async fn create_question(question: Json<Question>) -> Json<QuestionDetail> {
-    Json(QuestionDetail {
-        question_uuid: "d347261c-3f0e-42d2-8706-5ef9f1b96725".to_string(),
-        title: question.title.to_string(),
-        description: question.description.to_string(),
-        created_at: "2024-01-01 00:00:00.000000".to_string(),
-    })
+pub async fn create_question(
+    question: Json<Question>,
+    question_dao: &State<Box<dyn QuestionDao + Sync + Send>>,
+) -> Json<QuestionDetail> {
+    Json(
+        handlers_inner::create_question(question.0, question_dao.inner())
+            .await
+            .unwrap(),
+    )
 }
 
 #[get("/questions")]
