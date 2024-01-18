@@ -1,18 +1,36 @@
 use crate::{models::*, persistance::question_dao::QuestionDao};
 use rocket::{serde::json::Json, State};
 
+use self::handlers_inner::HandlerError;
+
 mod handlers_inner;
+
+#[derive(Responder)]
+pub enum APIError {
+    #[response(status = 400)]
+    BadRequest(String),
+    #[response(status = 500)]
+    IntervalError(String),
+}
+
+impl From<HandlerError> for APIError {
+    fn from(value: HandlerError) -> Self {
+        match value {
+            HandlerError::BadRequest(s) => Self::BadRequest(s),
+            HandlerError::InernalError(s) => Self::IntervalError(s),
+        }
+    }
+}
 
 #[post("/question", data = "<question>")]
 pub async fn create_question(
     question: Json<Question>,
     question_dao: &State<Box<dyn QuestionDao + Sync + Send>>,
-) -> Json<QuestionDetail> {
-    Json(
-        handlers_inner::create_question(question.0, question_dao.inner())
-            .await
-            .unwrap(),
-    )
+) -> Result<Json<QuestionDetail>, APIError> {
+    match handlers_inner::create_question(question.0, question_dao.inner()).await {
+        Ok(res) => Ok(Json(res)),
+        Err(e) => Err(e.into()),
+    }
 }
 
 #[get("/questions")]
