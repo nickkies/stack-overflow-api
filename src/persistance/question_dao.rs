@@ -6,7 +6,7 @@ use crate::models::{DBError, Question, QuestionDetail, QuestionId};
 #[async_trait]
 pub trait QuestionDao {
     async fn create_question(&self, question: Question) -> Result<QuestionDetail, DBError>;
-    // async fn get_questions(&self) -> Result<Vec<QuestionDetail>, DBError>;
+    async fn get_questions(&self) -> Result<Vec<QuestionDetail>, DBError>;
     // async fn delete_question(&self, question_uuid: QuestionId) -> Result<(), DBError>;
 }
 
@@ -44,9 +44,25 @@ impl QuestionDao for QuestionDaoImpl {
         })
     }
 
-    // async fn get_questions(&self) -> Result<Vec<QuestionDetail>, DBError> {
-    //     todo!();
-    // }
+    async fn get_questions(&self) -> Result<Vec<QuestionDetail>, DBError> {
+        let records =
+            sqlx::query!("SELECT question_uuid, title, description, created_at FROM question")
+                .fetch_all(&self.db)
+                .await
+                .map_err(|e| DBError::Other(Box::new(e)))?;
+
+        let questions = records
+            .iter()
+            .map(|r| QuestionDetail {
+                question_uuid: r.question_uuid.to_string(),
+                title: r.title.to_string(),
+                description: r.description.to_string(),
+                created_at: r.created_at.to_string(),
+            })
+            .collect();
+
+        Ok(questions)
+    }
 
     // async fn delete_question(&self, question_uuid: QuestionId) -> Result<(), DBError> {
     //     todo!();

@@ -30,6 +30,20 @@ pub async fn create_question(
     }
 }
 
+pub async fn get_questions(
+    question_dao: &Box<dyn QuestionDao + Sync + Send>,
+) -> Result<Vec<QuestionDetail>, HandlerError> {
+    let questions = question_dao.get_questions().await;
+
+    match questions {
+        Ok(questions) => Ok(questions),
+        Err(e) => {
+            error!("{e:?}");
+            Err(HandlerError::default_internal_error())
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -37,17 +51,23 @@ mod tests {
 
     struct QuestionDaoMock {
         create_question_response: Mutex<Option<Result<QuestionDetail, DBError>>>,
+        get_questions_response: Mutex<Option<Result<Vec<QuestionDetail>, DBError>>>,
     }
 
     impl QuestionDaoMock {
         fn new() -> Self {
             Self {
                 create_question_response: Mutex::new(None),
+                get_questions_response: Mutex::new(None),
             }
         }
 
         fn mock_create_question(&mut self, response: Result<QuestionDetail, DBError>) {
             self.create_question_response = Mutex::new(Some(response))
+        }
+
+        fn mock_get_questions(&mut self, response: Result<Vec<QuestionDetail>, DBError>) {
+            self.get_questions_response = Mutex::new(Some(response))
         }
     }
 
@@ -59,6 +79,14 @@ mod tests {
                 .await
                 .take()
                 .expect("create question response should not be None.")
+        }
+
+        async fn get_questions(&self) -> Result<Vec<QuestionDetail>, DBError> {
+            self.get_questions_response
+                .lock()
+                .await
+                .take()
+                .expect("get questions response should not be None")
         }
     }
 

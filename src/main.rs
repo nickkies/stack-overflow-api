@@ -34,10 +34,10 @@ async fn rocket() -> _ {
             "/",
             routes![
                 create_question,
-                read_questions,
+                get_questions,
                 delete_question,
                 create_answer,
-                read_answers,
+                get_answers,
                 delete_answer
             ],
         )
