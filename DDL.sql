@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS answer (
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-COMMENT ON TABLE answer IS 'Answer talbe';
+COMMENT ON TABLE answer IS 'Answer table';
 
 COMMENT ON COLUMN answer.answer_uuid IS 'Generated identifier unique to each answer ';
 COMMENT ON COLUMN answer.question_uuid IS 'Generated identifier unique to each question';
