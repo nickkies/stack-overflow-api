@@ -1,5 +1,5 @@
 use crate::{
-    models::{DBError, Question, QuestionDetail},
+    models::{DBError, Question, QuestionDetail, QuestionId},
     persistance::question_dao::QuestionDao,
 };
 
@@ -44,8 +44,17 @@ pub async fn get_questions(
     }
 }
 
+pub async fn delete_question(
+    question_uuid: QuestionId,
+    question_dao: &Box<dyn QuestionDao + Send + Sync>,
+) -> Result<(), HandlerError> {
+    todo!();
+}
+
 #[cfg(test)]
 mod tests {
+    use crate::models::QuestionId;
+
     use super::*;
     use tokio::sync::Mutex;
 
@@ -180,5 +189,24 @@ mod tests {
 
         assert!(result.is_ok());
         assert_eq!(result.unwrap(), vec![question_detail]);
+    }
+
+    #[tokio::test]
+    async fn delete_question_should_return_error() {
+        let question_id = QuestionId {
+            question_uuid: "123".to_string(),
+        };
+        let mut mock_dao = QuestionDaoMock::new();
+
+        mock_dao.mock_delete_question(Err(DBError::InvalidUUID("test".to_string())));
+
+        let dao: Box<dyn QuestionDao + Send + Sync> = Box::new(mock_dao);
+        let result = delete_question(question_id, &dao).await;
+
+        assert!(result.is_err());
+        assert_eq!(
+            std::mem::discriminant(&result.unwrap_err()),
+            std::mem::discriminant(&HandlerError::InernalError("".to_string()))
+        );
     }
 }
