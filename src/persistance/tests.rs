@@ -73,6 +73,32 @@ mod questions_tests {
             Ok(())
         }
     }
+
+    #[tokio::test]
+    async fn get_questions_should_fail_if_database_error_occurs() -> Result<(), String> {
+        let pool = create_test_pool().await;
+        let dao = QuestionDaoImpl::new(pool.clone());
+
+        pool.close().await;
+
+        let result = dao.get_questions().await;
+
+        if result.is_ok() {
+            return Err(format!(
+                "Expected an error but got the following result: {:?}",
+                result.unwrap()
+            ));
+        }
+
+        if let Err(DBError::Other(_)) = result {
+            Ok(())
+        } else {
+            Err(format!(
+                "Expected an error but got the following result: {:?}",
+                result.err()
+            ))
+        }
+    }
 }
 
 mod answer_tests {}
