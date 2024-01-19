@@ -166,6 +166,31 @@ mod questions_tests {
             ))
         }
     }
+
+    #[tokio::test]
+    async fn delete_question_should_succeed() -> Result<(), String> {
+        let pool = create_test_pool().await;
+        let dao = QuestionDaoImpl::new(pool);
+        let result = dao
+            .create_question(Question {
+                title: "test title".to_string(),
+                description: "test description".to_string(),
+            })
+            .await
+            .map_err(|e| format!("{e:?}"))?;
+
+        dao.delete_question(result.question_uuid)
+            .await
+            .map_err(|e| format!("{e:?}"))?;
+
+        let results = dao.get_questions().await.map_err(|e| format!("{e:?}"))?;
+
+        if results.len() == 0 {
+            Ok(())
+        } else {
+            Err("Qeustion was not deleted".to_string())
+        }
+    }
 }
 
 mod answer_tests {}
