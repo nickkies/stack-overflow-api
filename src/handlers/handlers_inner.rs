@@ -148,4 +148,23 @@ mod tests {
             std::mem::discriminant(&HandlerError::InernalError("".to_string()))
         );
     }
+
+    #[tokio::test]
+    async fn get_questions_should_return_questions() {
+        let question_detail = QuestionDetail {
+            question_uuid: "123".to_string(),
+            title: "test title".to_string(),
+            description: "test description".to_string(),
+            created_at: "now".to_string(),
+        };
+        let mut mock_dao = QuestionDaoMock::new();
+
+        mock_dao.mock_get_questions(Ok(vec![question_detail.clone()]));
+
+        let dao: Box<dyn QuestionDao + Send + Sync> = Box::new(mock_dao);
+        let result = get_questions(&dao).await;
+
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), vec![question_detail]);
+    }
 }
