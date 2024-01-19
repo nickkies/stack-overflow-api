@@ -99,6 +99,29 @@ mod questions_tests {
             ))
         }
     }
+
+    #[tokio::test]
+    async fn get_questions_should_succeed() -> Result<(), String> {
+        let pool = create_test_pool().await;
+        let dao = QuestionDaoImpl::new(pool);
+        let result = dao
+            .create_question(Question {
+                title: "test title".to_string(),
+                description: "test description".to_string(),
+            })
+            .await
+            .map_err(|e| format!("{e:?}"))?;
+
+        let results = dao.get_questions().await.map_err(|e| format!("{e:?}"))?;
+
+        if results.len() != 1 {
+            Err("incorrect number of results returned.".to_string())
+        } else if results.get(0).unwrap().question_uuid != result.question_uuid {
+            Err("Incorrect question returned.".to_string())
+        } else {
+            Ok(())
+        }
+    }
 }
 
 mod answer_tests {}
