@@ -52,6 +52,7 @@ mod tests {
     struct QuestionDaoMock {
         create_question_response: Mutex<Option<Result<QuestionDetail, DBError>>>,
         get_questions_response: Mutex<Option<Result<Vec<QuestionDetail>, DBError>>>,
+        delete_question_response: Mutex<Option<Result<(), DBError>>>,
     }
 
     impl QuestionDaoMock {
@@ -59,15 +60,20 @@ mod tests {
             Self {
                 create_question_response: Mutex::new(None),
                 get_questions_response: Mutex::new(None),
+                delete_question_response: Mutex::new(None),
             }
         }
 
         fn mock_create_question(&mut self, response: Result<QuestionDetail, DBError>) {
-            self.create_question_response = Mutex::new(Some(response))
+            self.create_question_response = Mutex::new(Some(response));
         }
 
         fn mock_get_questions(&mut self, response: Result<Vec<QuestionDetail>, DBError>) {
-            self.get_questions_response = Mutex::new(Some(response))
+            self.get_questions_response = Mutex::new(Some(response));
+        }
+
+        fn mock_delete_question(&mut self, response: Result<(), DBError>) {
+            self.delete_question_response = Mutex::new(Some(response));
         }
     }
 
@@ -87,6 +93,14 @@ mod tests {
                 .await
                 .take()
                 .expect("get questions response should not be None")
+        }
+
+        async fn delete_question(&self, _: String) -> Result<(), DBError> {
+            self.delete_question_response
+                .lock()
+                .await
+                .take()
+                .expect("delete question response should not be None")
         }
     }
 
