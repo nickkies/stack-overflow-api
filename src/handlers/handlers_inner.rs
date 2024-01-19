@@ -132,4 +132,20 @@ mod tests {
         assert!(result.is_ok());
         assert_eq!(result.unwrap(), question_detail);
     }
+
+    #[tokio::test]
+    async fn get_questions_should_return_error() {
+        let mut mock_dao = QuestionDaoMock::new();
+
+        mock_dao.mock_get_questions(Err(DBError::InvalidUUID("test".to_string())));
+
+        let dao: Box<dyn QuestionDao + Send + Sync> = Box::new(mock_dao);
+        let result = get_questions(&dao).await;
+
+        assert!(result.is_err());
+        assert_eq!(
+            std::mem::discriminant(&result.unwrap_err()),
+            std::mem::discriminant(&HandlerError::InernalError("".to_string()))
+        );
+    }
 }
