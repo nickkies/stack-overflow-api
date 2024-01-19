@@ -122,6 +122,50 @@ mod questions_tests {
             Ok(())
         }
     }
+
+    #[tokio::test]
+    async fn delete_qeustion_should_fail_with_malformed_uuid() -> Result<(), String> {
+        let pool = create_test_pool().await;
+        let dao = QuestionDaoImpl::new(pool);
+        let result = dao.delete_question("malformed".to_string()).await;
+
+        if result.is_ok() {
+            return Err(format!(
+                "Expected an error but got the following result: {:?}",
+                result.unwrap()
+            ));
+        }
+
+        if let Err(DBError::InvalidUUID(_)) = result {
+            Ok(())
+        } else {
+            Err(format!(
+                "Expected an invalid UUID error but got the following error: {:?}",
+                result.err()
+            ))
+        }
+    }
+
+    #[tokio::test]
+    async fn delete_question_should_fail_if_database_error_occurs() -> Result<(), String> {
+        let pool = create_test_pool().await;
+        let dao = QuestionDaoImpl::new(pool.clone());
+
+        pool.close().await;
+
+        let result = dao
+            .delete_question("c4d24be8-8655-414f-81f0-8cf3ff11245a".to_string())
+            .await;
+
+        if let Err(DBError::Other(_)) = result {
+            Ok(())
+        } else {
+            Err(format!(
+                "Expected an Other error but got the following error: {:?}",
+                result.err()
+            ))
+        }
+    }
 }
 
 mod answer_tests {}
