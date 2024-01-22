@@ -45,10 +45,20 @@ pub async fn get_questions(
 }
 
 pub async fn delete_question(
-    question_uuid: QuestionId,
+    question_id: QuestionId,
     question_dao: &Box<dyn QuestionDao + Send + Sync>,
 ) -> Result<(), HandlerError> {
-    todo!();
+    let result = question_dao
+        .delete_question(question_id.question_uuid)
+        .await;
+
+    match result {
+        Ok(()) => Ok(()),
+        Err(e) => {
+            error!("{e:?}");
+            Err(HandlerError::default_internal_error())
+        }
+    }
 }
 
 #[cfg(test)]

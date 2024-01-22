@@ -44,8 +44,14 @@ pub async fn get_questions(
 }
 
 #[delete("/question", data = "<question_uuid>")]
-pub async fn delete_question(question_uuid: Json<QuestionId>) {
-    ()
+pub async fn delete_question(
+    question_uuid: Json<QuestionId>,
+    question_dao: &State<Box<dyn QuestionDao + Sync + Send>>,
+) -> Result<(), APIError> {
+    match handlers_inner::delete_question(question_uuid.0, question_dao.inner()).await {
+        Ok(_) => Ok(()),
+        Err(e) => Err(e.into()),
+    }
 }
 
 #[post("/answer", data = "<answer>")]
