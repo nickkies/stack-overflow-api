@@ -209,4 +209,20 @@ mod tests {
             std::mem::discriminant(&HandlerError::InernalError("".to_string()))
         );
     }
+
+    #[tokio::test]
+    async fn delete_question_should_succeed() {
+        let question_id = QuestionId {
+            question_uuid: "123".to_string(),
+        };
+        let mut mock_dao = QuestionDaoMock::new();
+
+        mock_dao.mock_delete_question(Ok(()));
+
+        let dao: Box<dyn QuestionDao + Send + Sync> = Box::new(mock_dao);
+        let result = delete_question(question_id, &dao).await;
+
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), ());
+    }
 }
