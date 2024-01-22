@@ -1,6 +1,6 @@
 use crate::{
-    models::{DBError, Question, QuestionDetail, QuestionId},
-    persistance::question_dao::QuestionDao,
+    models::{Answer, AnswerDetail, AnswerId, DBError, Question, QuestionDetail, QuestionId},
+    persistance::{answer_dao::AnswerDao, question_dao::QuestionDao},
 };
 
 #[derive(Debug, PartialEq)]
@@ -120,6 +120,61 @@ mod tests {
                 .await
                 .take()
                 .expect("delete question response should not be None")
+        }
+    }
+
+    struct AnswerDaoMock {
+        create_answer_response: Mutex<Option<Result<AnswerDetail, DBError>>>,
+        get_answers_response: Mutex<Option<Result<Vec<AnswerDetail>, DBError>>>,
+        delete_answer_response: Mutex<Option<Result<(), DBError>>>,
+    }
+
+    impl AnswerDaoMock {
+        fn new() -> Self {
+            Self {
+                create_answer_response: Mutex::new(None),
+                get_answers_response: Mutex::new(None),
+                delete_answer_response: Mutex::new(None),
+            }
+        }
+
+        pub fn mock_create_answer(&mut self, response: Result<AnswerDetail, DBError>) {
+            self.create_answer_response = Mutex::new(Some(response));
+        }
+
+        pub fn mock_get_answers(&mut self, response: Result<Vec<AnswerDetail>, DBError>) {
+            self.get_answers_response = Mutex::new(Some(response));
+        }
+
+        pub fn mock_delete_answer(&mut self, response: Result<(), DBError>) {
+            self.delete_answer_response = Mutex::new(Some(response));
+        }
+    }
+
+    #[async_trait]
+    impl AnswerDao for AnswerDaoMock {
+        async fn create_answer(&self, _: Answer) -> Result<AnswerDetail, DBError> {
+            self.create_answer_response
+                .lock()
+                .await
+                .take()
+                .expect("create answer response should not be None")
+        }
+
+        async fn get_answers(&self, _: String) -> Result<Vec<AnswerDetail>, DBError> {
+            self.get_answers_response
+                .lock()
+                .await
+                .take()
+                .expect("get answers response should not be None")
+        }
+
+        async fn delete_answer(&self, _: String) -> Result<(), DBError> {
+            self.delete_answer_response
+                .lock()
+                .await
+                .take()
+                .expect("delete answer response should not be None")
         }
     }
 
