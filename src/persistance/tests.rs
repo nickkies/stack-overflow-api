@@ -111,6 +111,35 @@ mod questions_tests {
     }
 
     #[tokio::test]
+    async fn create_answer_should_succeed() -> Result<(), String> {
+        let pool = create_test_pool().await;
+        let question_dao = QuestionDaoImpl::new(pool.clone());
+        let answer_dao = AnswerDaoImpl::new(pool);
+
+        let question = question_dao
+            .create_question(Question {
+                title: "test title".to_string(),
+                description: "test description".to_string(),
+            })
+            .await
+            .map_err(|e| format!("{e:?}"))?;
+
+        let result = answer_dao
+            .create_answer(Answer {
+                question_uuid: question.question_uuid,
+                content: "test content".to_string(),
+            })
+            .await
+            .map_err(|e| format!("{e:?}"))?;
+
+        if result.content == "test content".to_string() {
+            Ok(())
+        } else {
+            Err("Incorrect answer content".to_string())
+        }
+    }
+
+    #[tokio::test]
     async fn create_question_should_fail_if_database_error_occurs() -> Result<(), String> {
         let pool = create_test_pool().await;
         let dao = QuestionDaoImpl::new(pool.clone());
