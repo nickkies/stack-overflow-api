@@ -26,7 +26,7 @@ pub struct Answer {
     pub content: String,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct AnswerDetail {
     pub answer_uuid: String,
     pub question_uuid: String,
