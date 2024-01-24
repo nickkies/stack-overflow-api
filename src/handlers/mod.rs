@@ -1,4 +1,7 @@
-use crate::{models::*, persistance::question_dao::QuestionDao};
+use crate::{
+    models::*,
+    persistance::{answer_dao::AnswerDao, question_dao::QuestionDao},
+};
 use rocket::{serde::json::Json, State};
 
 use self::handlers_inner::HandlerError;
@@ -29,7 +32,7 @@ pub async fn create_question(
 ) -> Result<Json<QuestionDetail>, APIError> {
     match handlers_inner::create_question(question.0, question_dao.inner()).await {
         Ok(res) => Ok(Json(res)),
-        Err(e) => Err(e.into()),
+        Err(err) => Err(err.into()),
     }
 }
 
@@ -39,7 +42,7 @@ pub async fn get_questions(
 ) -> Result<Json<Vec<QuestionDetail>>, APIError> {
     match handlers_inner::get_questions(question_dao.inner()).await {
         Ok(res) => Ok(Json(res)),
-        Err(e) => Err(e.into()),
+        Err(err) => Err(err.into()),
     }
 }
 
@@ -55,13 +58,14 @@ pub async fn delete_question(
 }
 
 #[post("/answer", data = "<answer>")]
-pub async fn create_answer(answer: Json<Answer>) -> Json<AnswerDetail> {
-    Json(AnswerDetail {
-        answer_uuid: "a1a14a9c-ab9e-481b-8120-67f675531ed2".to_string(),
-        question_uuid: answer.question_uuid.to_string(),
-        content: answer.content.to_string(),
-        created_at: "2024-01-01 00:00:00.000000".to_string(),
-    })
+pub async fn create_answer(
+    answer: Json<Answer>,
+    answer_dao: &State<Box<dyn AnswerDao + Send + Sync>>,
+) -> Result<Json<AnswerDetail>, APIError> {
+    match handlers_inner::create_answer(answer.0, answer_dao.inner()).await {
+        Ok(res) => Ok(Json(res)),
+        Err(err) => Err(err.into()),
+    }
 }
 
 #[get("/answers", data = "<question_uuid>")]

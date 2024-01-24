@@ -65,7 +65,19 @@ pub async fn create_answer(
     answer: Answer,
     answer_dao: &Box<dyn AnswerDao + Send + Sync>,
 ) -> Result<AnswerDetail, HandlerError> {
-    todo!()
+    let answer = answer_dao.create_answer(answer).await;
+
+    match answer {
+        Ok(answer) => Ok(answer),
+        Err(e) => {
+            error!("{e:?}");
+
+            match e {
+                DBError::InvalidUUID(s) => Err(HandlerError::BadRequest(s)),
+                _ => Err(HandlerError::default_internal_error()),
+            }
+        }
+    }
 }
 
 #[cfg(test)]
