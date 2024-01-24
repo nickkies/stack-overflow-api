@@ -55,12 +55,16 @@ impl AnswerDao for AnswerDaoImpl {
             e => DBError::Other(Box::new(e)),
         })?;
 
-        Ok(AnswerDetail {
+        let answer_detail = AnswerDetail {
             answer_uuid: record.answer_uuid.to_string(),
             question_uuid: record.question_uuid.to_string(),
             content: record.content,
             created_at: record.created_at.to_string(),
-        })
+        };
+
+        debug!("answer detail: {answer_detail:?}");
+
+        Ok(answer_detail)
     }
 
     async fn get_answers(&self, question_uuid: String) -> Result<Vec<AnswerDetail>, DBError> {
