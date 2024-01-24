@@ -64,7 +64,7 @@ pub async fn delete_question(
 pub async fn create_answer(
     answer: Answer,
     answer_dao: &Box<dyn AnswerDao + Send + Sync>,
-) -> Result<(), HandlerError> {
+) -> Result<AnswerDetail, HandlerError> {
     todo!()
 }
 
@@ -339,5 +339,28 @@ mod tests {
             std::mem::discriminant(&result.unwrap_err()),
             std::mem::discriminant(&HandlerError::InternalError("".to_string()))
         );
+    }
+
+    #[tokio::test]
+    async fn create_answer_should_return_answer() {
+        let answer = Answer {
+            question_uuid: "123".to_string(),
+            content: "test content".to_string(),
+        };
+        let answer_detail = AnswerDetail {
+            answer_uuid: "456".to_string(),
+            question_uuid: answer.question_uuid.clone(),
+            content: answer.content.clone(),
+            created_at: "now".to_string(),
+        };
+        let mut mock_dao = AnswerDaoMock::new();
+
+        mock_dao.mock_create_answer(Ok(answer_detail.clone()));
+
+        let dao: Box<dyn AnswerDao + Send + Sync> = Box::new(mock_dao);
+        let result = create_answer(answer, &dao).await;
+
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), answer_detail);
     }
 }
