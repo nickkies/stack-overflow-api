@@ -297,4 +297,47 @@ mod tests {
         assert!(result.is_ok());
         assert_eq!(result.unwrap(), ());
     }
+
+    #[tokio::test]
+    async fn create_answer_should_return_bad_request_error() {
+        let answer = Answer {
+            question_uuid: "123".to_string(),
+            content: "test content".to_string(),
+        };
+        let mut mock_dao = AnswerDaoMock::new();
+
+        mock_dao.mock_create_answer(Err(DBError::InvalidUUID("test".to_string())));
+
+        let dao: Box<dyn AnswerDao + Send + Sync> = Box::new(mock_dao);
+        let result = create_answer(answer, &dao).await;
+
+        assert!(result.is_err());
+        assert_eq!(
+            std::mem::discriminant(&result.unwrap_err()),
+            std::mem::discriminant(&HandlerError::BadRequest("".to_string()))
+        );
+    }
+
+    #[tokio::test]
+    async fn create_answer_should_return_internal_error() {
+        let answer = Answer {
+            question_uuid: "123".to_string(),
+            content: "test content".to_string(),
+        };
+        let mut mock_dao = AnswerDaoMock::new();
+
+        mock_dao.mock_create_answer(Err(DBError::Other(Box::new(std::io::Error::new(
+            std::io::ErrorKind::Other,
+            "oh no!",
+        )))));
+
+        let dao: Box<dyn AnswerDao + Send + Sync> = Box::new(mock_dao);
+        let result = create_answer(answer, &dao).await;
+
+        assert!(result.is_err());
+        assert_eq!(
+            std::mem::discriminant(&result.unwrap_err()),
+            std::mem::discriminant(&HandlerError::InternalError("".to_string()))
+        );
+    }
 }
