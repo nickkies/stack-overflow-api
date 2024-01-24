@@ -10,14 +10,14 @@ pub enum APIError {
     #[response(status = 400)]
     BadRequest(String),
     #[response(status = 500)]
-    IntervalError(String),
+    InternalError(String),
 }
 
 impl From<HandlerError> for APIError {
     fn from(value: HandlerError) -> Self {
         match value {
             HandlerError::BadRequest(s) => Self::BadRequest(s),
-            HandlerError::InernalError(s) => Self::IntervalError(s),
+            HandlerError::InternalError(s) => Self::InternalError(s),
         }
     }
 }

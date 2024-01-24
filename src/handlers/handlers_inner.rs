@@ -6,12 +6,12 @@ use crate::{
 #[derive(Debug, PartialEq)]
 pub enum HandlerError {
     BadRequest(String),
-    InernalError(String),
+    InternalError(String),
 }
 
 impl HandlerError {
     pub fn default_internal_error() -> Self {
-        HandlerError::InernalError("Something went wrong! Please try again.".to_string())
+        HandlerError::InternalError("Something went wrong! Please try again.".to_string())
     }
 }
 
@@ -59,6 +59,13 @@ pub async fn delete_question(
             Err(HandlerError::default_internal_error())
         }
     }
+}
+
+pub async fn create_answer(
+    answer: Answer,
+    answer_dao: &Box<dyn AnswerDao + Send + Sync>,
+) -> Result<(), HandlerError> {
+    todo!()
 }
 
 #[cfg(test)]
@@ -194,7 +201,7 @@ mod tests {
         assert!(result.is_err());
         assert_eq!(
             std::mem::discriminant(&result.unwrap_err()),
-            std::mem::discriminant(&HandlerError::InernalError("".to_string()))
+            std::mem::discriminant(&HandlerError::InternalError("".to_string()))
         );
     }
 
@@ -233,7 +240,7 @@ mod tests {
         assert!(result.is_err());
         assert_eq!(
             std::mem::discriminant(&result.unwrap_err()),
-            std::mem::discriminant(&HandlerError::InernalError("".to_string()))
+            std::mem::discriminant(&HandlerError::InternalError("".to_string()))
         );
     }
 
@@ -271,7 +278,7 @@ mod tests {
         assert!(result.is_err());
         assert_eq!(
             std::mem::discriminant(&result.unwrap_err()),
-            std::mem::discriminant(&HandlerError::InernalError("".to_string()))
+            std::mem::discriminant(&HandlerError::InternalError("".to_string()))
         );
     }
 
