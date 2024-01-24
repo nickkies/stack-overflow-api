@@ -68,7 +68,35 @@ impl AnswerDao for AnswerDaoImpl {
     }
 
     async fn get_answers(&self, question_uuid: String) -> Result<Vec<AnswerDetail>, DBError> {
-        todo!();
+        let uuid = sqlx::types::Uuid::parse_str(&question_uuid).map_err(|_| {
+            DBError::InvalidUUID(format!("Could not parse question UUID: {question_uuid}"))
+        })?;
+
+        let records = sqlx::query!(
+            r#"
+              SELECT answer_uuid, question_uuid, content, created_at
+              FROM answer 
+              WHERE question_uuid = $1
+          "#,
+            uuid
+        )
+        .fetch_all(&self.db)
+        .await
+        .map_err(|e| DBError::Other(Box::new(e)))?;
+
+        let answers = records
+            .iter()
+            .map(|r| AnswerDetail {
+                answer_uuid: r.answer_uuid.to_string(),
+                question_uuid: r.question_uuid.to_string(),
+                content: r.content.to_string(),
+                created_at: r.created_at.to_string(),
+            })
+            .collect();
+
+        debug!("get answers: {answers:?}");
+
+        Ok(answers)
     }
 
     async fn delete_answer(&self, answer_uuid: String) -> Result<(), DBError> {

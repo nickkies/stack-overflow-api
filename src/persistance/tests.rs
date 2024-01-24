@@ -405,7 +405,7 @@ mod answer_tests {
 
         if answers.len() != 1 {
             Err("Incorrect number of results returned.".to_string())
-        } else if answers.get(0).unwrap().answer_uuid != answer_detail.question_uuid {
+        } else if answers.get(0).unwrap().answer_uuid != answer_detail.answer_uuid {
             Err("Incorrect answer returned.".to_string())
         } else {
             Ok(())
