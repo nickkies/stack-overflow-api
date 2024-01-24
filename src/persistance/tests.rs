@@ -375,4 +375,40 @@ mod answer_tests {
             ))
         }
     }
+
+    #[tokio::test]
+    async fn get_answers_should_succeed() -> Result<(), String> {
+        let pool = create_test_pool().await;
+        let question_dao = QuestionDaoImpl::new(pool.clone());
+        let answer_dao = AnswerDaoImpl::new(pool);
+
+        let question_detail = question_dao
+            .create_question(Question {
+                title: "test title".to_string(),
+                description: "test description".to_string(),
+            })
+            .await
+            .map_err(|e| format!("{e:?}"))?;
+
+        let answer_detail = answer_dao
+            .create_answer(Answer {
+                question_uuid: question_detail.question_uuid.clone(),
+                content: "test content".to_string(),
+            })
+            .await
+            .map_err(|e| format!("{e:?}"))?;
+
+        let answers = answer_dao
+            .get_answers(question_detail.question_uuid)
+            .await
+            .map_err(|e| format!("{e:?}"))?;
+
+        if answers.len() != 1 {
+            Err("Incorrect number of results returned.".to_string())
+        } else if answers.get(0).unwrap().answer_uuid != answer_detail.question_uuid {
+            Err("Incorrect answer returned.".to_string())
+        } else {
+            Ok(())
+        }
+    }
 }
