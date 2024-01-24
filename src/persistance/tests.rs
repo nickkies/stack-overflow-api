@@ -317,4 +317,62 @@ mod answer_tests {
             Err("Incorrect answer content".to_string())
         }
     }
+
+    #[tokio::test]
+    async fn get_answers_should_fail_with_malformd_uuid() -> Result<(), String> {
+        let pool = create_test_pool().await;
+        let dao = AnswerDaoImpl::new(pool);
+        let result = dao.get_answers("marformed".to_string()).await;
+
+        if result.is_ok() {
+            return Err(format!(
+                "Expected an error but got the following result: {:?}",
+                result.unwrap()
+            ));
+        }
+
+        if let Err(DBError::InvalidUUID(_)) = result {
+            Ok(())
+        } else {
+            Err(format!(
+                "Expected an invalid UUID error but got the following error: {:?}",
+                result.err()
+            ))
+        }
+    }
+
+    #[tokio::test]
+    async fn get_answers_should_if_database_error_occurs() -> Result<(), String> {
+        let pool = create_test_pool().await;
+        let question_dao = QuestionDaoImpl::new(pool.clone());
+        let answer_dao = AnswerDaoImpl::new(pool.clone());
+
+        let question_detail = question_dao
+            .create_question(Question {
+                title: "test title".to_string(),
+                description: "test description".to_string(),
+            })
+            .await
+            .map_err(|e| format!("{e:?}"))?;
+
+        pool.close().await;
+
+        let result = answer_dao.get_answers(question_detail.question_uuid).await;
+
+        if result.is_ok() {
+            return Err(format!(
+                "Expected an error but got the following result: {:?}",
+                result.unwrap()
+            ));
+        }
+
+        if let Err(DBError::Other(_)) = result {
+            Ok(())
+        } else {
+            Err(format!(
+                "Expected an Other error but got the following error: {:?}",
+                result.err()
+            ))
+        }
+    }
 }
