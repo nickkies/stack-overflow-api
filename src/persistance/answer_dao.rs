@@ -1,6 +1,6 @@
 use sqlx::PgPool;
 
-use crate::models::{Answer, AnswerDetail, DBError};
+use crate::models::{postgres_error_codes, Answer, AnswerDetail, DBError};
 
 #[async_trait]
 pub trait AnswerDao {
@@ -29,11 +29,37 @@ impl AnswerDao for AnswerDaoImpl {
             ))
         })?;
 
+        let record = sqlx::query!(
+            r#"
+                INSERT INTO answer ( question_uuid, content )
+                VALUES ( $1, $2 )
+                RETURNING *
+            "#,
+            uuid,
+            answer.content
+        )
+        .fetch_one(&self.db)
+        .await
+        .map_err(|e: sqlx::Error| match e {
+            sqlx::Error::Database(e) => {
+                if let Some(code) = e.code() {
+                    if code.eq(postgres_error_codes::FOREIGN_KEY_VIOLATION) {
+                        return DBError::InvalidUUID(format!(
+                            "Invalid question UUID: {}",
+                            answer.question_uuid
+                        ));
+                    }
+                }
+                DBError::Other(Box::new(e))
+            }
+            e => DBError::Other(Box::new(e)),
+        })?;
+
         Ok(AnswerDetail {
-            answer_uuid: "123".to_string(),
-            question_uuid: "123".to_string(),
-            content: "test content".to_string(),
-            created_at: "now".to_string(),
+            answer_uuid: record.answer_uuid.to_string(),
+            question_uuid: record.question_uuid.to_string(),
+            content: record.content,
+            created_at: record.created_at.to_string(),
         })
     }
 
