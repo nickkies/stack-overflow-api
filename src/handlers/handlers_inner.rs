@@ -84,7 +84,15 @@ pub async fn get_answers(
     question_id: QuestionId,
     answer_dao: &Box<dyn AnswerDao + Send + Sync>,
 ) -> Result<Vec<AnswerDetail>, HandlerError> {
-    todo!();
+    let answers = answer_dao.get_answers(question_id.question_uuid).await;
+
+    match answers {
+        Ok(answers) => Ok(answers),
+        Err(e) => {
+            error!("{e:?}");
+            Err(HandlerError::default_internal_error())
+        }
+    }
 }
 
 #[cfg(test)]

@@ -69,13 +69,14 @@ pub async fn create_answer(
 }
 
 #[get("/answers", data = "<question_uuid>")]
-pub async fn get_answers(question_uuid: Json<QuestionId>) -> Json<Vec<AnswerDetail>> {
-    Json(vec![AnswerDetail {
-        answer_uuid: "a1a14a9c-ab9e-481b-8120-67f675531ed2".to_string(),
-        question_uuid: question_uuid.question_uuid.to_string(),
-        content: "test question".to_string(),
-        created_at: "2024-01-01 00:00:00.000000".to_string(),
-    }])
+pub async fn get_answers(
+    question_uuid: Json<QuestionId>,
+    answer_dao: &State<Box<dyn AnswerDao + Send + Sync>>,
+) -> Result<Json<Vec<AnswerDetail>>, APIError> {
+    match handlers_inner::get_answers(question_uuid.0, answer_dao.inner()).await {
+        Ok(res) => Ok(Json(res)),
+        Err(err) => Err(err.into()),
+    }
 }
 
 #[delete("/answer", data = "<answer_uuid>")]
