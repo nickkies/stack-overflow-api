@@ -99,7 +99,13 @@ pub async fn delete_answer(
     answer_id: AnswerId,
     answer_dao: &Box<dyn AnswerDao + Send + Sync>,
 ) -> Result<(), HandlerError> {
-    todo!();
+    let result = answer_dao.delete_answer(answer_id.answer_uuid).await;
+
+    if result.is_ok() {
+        Ok(())
+    } else {
+        Err(HandlerError::default_internal_error())
+    }
 }
 
 #[cfg(test)]

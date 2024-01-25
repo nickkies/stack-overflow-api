@@ -80,6 +80,12 @@ pub async fn get_answers(
 }
 
 #[delete("/answer", data = "<answer_uuid>")]
-pub async fn delete_answer(answer_uuid: Json<AnswerId>) {
-    ()
+pub async fn delete_answer(
+    answer_uuid: Json<AnswerId>,
+    answer_dao: &State<Box<dyn AnswerDao + Send + Sync>>,
+) -> Result<(), APIError> {
+    match handlers_inner::delete_answer(answer_uuid.0, answer_dao.inner()).await {
+        Ok(_) => Ok(()),
+        Err(e) => Err(e.into()),
+    }
 }
