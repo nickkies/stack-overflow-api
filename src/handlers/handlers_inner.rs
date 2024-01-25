@@ -80,6 +80,13 @@ pub async fn create_answer(
     }
 }
 
+pub async fn get_answers(
+    question_id: QuestionId,
+    answer_dao: &Box<dyn AnswerDao + Send + Sync>,
+) -> Result<(), HandlerError> {
+    todo!();
+}
+
 #[cfg(test)]
 mod tests {
     use crate::models::QuestionId;
@@ -374,5 +381,24 @@ mod tests {
 
         assert!(result.is_ok());
         assert_eq!(result.unwrap(), answer_detail);
+    }
+
+    #[tokio::test]
+    async fn get_answers_should_return_error() {
+        let question_id = QuestionId {
+            question_uuid: "123".to_string(),
+        };
+        let mut mock_dao = AnswerDaoMock::new();
+
+        mock_dao.mock_get_answers(Err(DBError::InvalidUUID("test".to_string())));
+
+        let dao: Box<dyn AnswerDao + Send + Sync> = Box::new(mock_dao);
+        let result = get_answers(question_id, &dao).await;
+
+        assert!(result.is_err());
+        assert_eq!(
+            std::mem::discriminant(&result.unwrap_err()),
+            std::mem::discriminant(&HandlerError::InternalError("".to_string()))
+        );
     }
 }
