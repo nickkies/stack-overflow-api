@@ -83,7 +83,7 @@ pub async fn create_answer(
 pub async fn get_answers(
     question_id: QuestionId,
     answer_dao: &Box<dyn AnswerDao + Send + Sync>,
-) -> Result<(), HandlerError> {
+) -> Result<Vec<AnswerDetail>, HandlerError> {
     todo!();
 }
 
@@ -400,5 +400,27 @@ mod tests {
             std::mem::discriminant(&result.unwrap_err()),
             std::mem::discriminant(&HandlerError::InternalError("".to_string()))
         );
+    }
+
+    #[tokio::test]
+    async fn get_answers_should_return_answers() {
+        let answer_detail = AnswerDetail {
+            question_uuid: "123".to_string(),
+            answer_uuid: "456".to_string(),
+            content: "test content".to_string(),
+            created_at: "now".to_string(),
+        };
+        let question_id = QuestionId {
+            question_uuid: "123".to_string(),
+        };
+        let mut mock_dao = AnswerDaoMock::new();
+
+        mock_dao.mock_get_answers(Ok(vec![answer_detail.clone()]));
+
+        let dao: Box<dyn AnswerDao + Send + Sync> = Box::new(mock_dao);
+        let result = get_answers(question_id, &dao).await;
+
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), vec![answer_detail]);
     }
 }
