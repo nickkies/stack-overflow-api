@@ -457,4 +457,20 @@ mod tests {
             std::mem::discriminant(&HandlerError::InternalError("".to_string()))
         );
     }
+
+    #[tokio::test]
+    async fn delete_answer_should_succeed() {
+        let answer_id = AnswerId {
+            answer_uuid: "123".to_string(),
+        };
+        let mut mock_dao = AnswerDaoMock::new();
+
+        mock_dao.mock_delete_answer(Ok(()));
+
+        let dao: Box<dyn AnswerDao + Send + Sync> = Box::new(mock_dao);
+        let result = delete_answer(answer_id, &dao).await;
+
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), ());
+    }
 }
