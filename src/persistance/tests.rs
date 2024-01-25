@@ -411,4 +411,27 @@ mod answer_tests {
             Ok(())
         }
     }
+
+    #[tokio::test]
+    async fn delete_answer_should_fail_with_malformed_uuid() -> Result<(), String> {
+        let pool = create_test_pool().await;
+        let dao = AnswerDaoImpl::new(pool);
+        let result = dao.delete_answer("malformed".to_string()).await;
+
+        if result.is_ok() {
+            return Err(format!(
+                "Expected an error but got the following result: {:?}",
+                result.unwrap()
+            ));
+        }
+
+        if let Err(DBError::InvalidUUID(_)) = result {
+            Ok(())
+        } else {
+            Err(format!(
+                "Expected an invalid UUID error but got the following error: {:?}",
+                result.err()
+            ))
+        }
+    }
 }
