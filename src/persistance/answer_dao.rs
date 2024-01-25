@@ -100,6 +100,15 @@ impl AnswerDao for AnswerDaoImpl {
     }
 
     async fn delete_answer(&self, answer_uuid: String) -> Result<(), DBError> {
-        todo!();
+        let uuid = sqlx::types::Uuid::parse_str(&answer_uuid).map_err(|_| {
+            DBError::InvalidUUID(format!("Could not parse answer UUID: {answer_uuid}"))
+        })?;
+
+        sqlx::query!("DELETE FROM answer WHERE answer_uuid = $1", uuid)
+            .execute(&self.db)
+            .await
+            .map_err(|e| DBError::Other(Box::new(e)))?;
+
+        Ok(())
     }
 }
