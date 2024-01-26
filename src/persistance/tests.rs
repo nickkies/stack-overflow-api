@@ -1,28 +1,15 @@
-mod test_util {
-    use dotenvy::dotenv;
-    use sqlx::{postgres::PgPoolOptions, PgPool};
-
-    pub async fn create_test_pool() -> PgPool {
-        dotenv().ok();
-
-        PgPoolOptions::new()
-            .max_connections(1)
-            .connect(&std::env::var("DATABASE_URL").expect("DATABASE_URL must be set."))
-            .await
-            .expect("Failed to create Postgres connection pool!")
-    }
-}
-
 mod questions_tests {
-    use super::test_util::create_test_pool;
+    use sqlx::PgPool;
+
     use crate::{
         models::{DBError, Question},
         persistance::question_dao::{QuestionDao, QuestionDaoImpl},
     };
 
-    #[tokio::test]
-    async fn create_question_should_fail_if_database_error_occurs() -> Result<(), String> {
-        let pool = create_test_pool().await;
+    #[sqlx::test]
+    async fn create_question_should_fail_if_database_error_occurs(
+        pool: PgPool,
+    ) -> Result<(), String> {
         let dao = QuestionDaoImpl::new(pool.clone());
 
         pool.close().await;
@@ -51,9 +38,8 @@ mod questions_tests {
         }
     }
 
-    #[tokio::test]
-    async fn create_question_should_succeed() -> Result<(), String> {
-        let pool = create_test_pool().await;
+    #[sqlx::test]
+    async fn create_question_should_succeed(pool: PgPool) -> Result<(), String> {
         let dao = QuestionDaoImpl::new(pool);
 
         let result = dao
@@ -73,9 +59,10 @@ mod questions_tests {
         }
     }
 
-    #[tokio::test]
-    async fn get_questions_should_fail_if_database_error_occurs() -> Result<(), String> {
-        let pool = create_test_pool().await;
+    #[sqlx::test]
+    async fn get_questions_should_fail_if_database_error_occurs(
+        pool: PgPool,
+    ) -> Result<(), String> {
         let dao = QuestionDaoImpl::new(pool.clone());
 
         pool.close().await;
@@ -99,9 +86,8 @@ mod questions_tests {
         }
     }
 
-    #[tokio::test]
-    async fn get_questions_should_succeed() -> Result<(), String> {
-        let pool = create_test_pool().await;
+    #[sqlx::test]
+    async fn get_questions_should_succeed(pool: PgPool) -> Result<(), String> {
         let dao = QuestionDaoImpl::new(pool);
         let result = dao
             .create_question(Question {
@@ -122,9 +108,8 @@ mod questions_tests {
         }
     }
 
-    #[tokio::test]
-    async fn delete_qeustion_should_fail_with_malformed_uuid() -> Result<(), String> {
-        let pool = create_test_pool().await;
+    #[sqlx::test]
+    async fn delete_qeustion_should_fail_with_malformed_uuid(pool: PgPool) -> Result<(), String> {
         let dao = QuestionDaoImpl::new(pool);
         let result = dao.delete_question("malformed".to_string()).await;
 
@@ -145,9 +130,10 @@ mod questions_tests {
         }
     }
 
-    #[tokio::test]
-    async fn delete_question_should_fail_if_database_error_occurs() -> Result<(), String> {
-        let pool = create_test_pool().await;
+    #[sqlx::test]
+    async fn delete_question_should_fail_if_database_error_occurs(
+        pool: PgPool,
+    ) -> Result<(), String> {
         let dao = QuestionDaoImpl::new(pool.clone());
 
         pool.close().await;
@@ -166,9 +152,8 @@ mod questions_tests {
         }
     }
 
-    #[tokio::test]
-    async fn delete_question_should_succeed() -> Result<(), String> {
-        let pool = create_test_pool().await;
+    #[sqlx::test]
+    async fn delete_question_should_succeed(pool: PgPool) -> Result<(), String> {
         let dao = QuestionDaoImpl::new(pool);
         let result = dao
             .create_question(Question {
@@ -193,7 +178,8 @@ mod questions_tests {
 }
 
 mod answer_tests {
-    use super::test_util::create_test_pool;
+    use sqlx::PgPool;
+
     use crate::{
         models::{Answer, DBError, Question},
         persistance::{
@@ -202,9 +188,8 @@ mod answer_tests {
         },
     };
 
-    #[tokio::test]
-    async fn create_answer_should_fail_with_malformed_uuid() -> Result<(), String> {
-        let pool = create_test_pool().await;
+    #[sqlx::test]
+    async fn create_answer_should_fail_with_malformed_uuid(pool: PgPool) -> Result<(), String> {
         let dao = AnswerDaoImpl::new(pool);
         let result = dao
             .create_answer(Answer {
@@ -230,9 +215,8 @@ mod answer_tests {
         }
     }
 
-    #[tokio::test]
-    async fn create_answer_should_fail_with_non_existent_uuid() -> Result<(), String> {
-        let pool = create_test_pool().await;
+    #[sqlx::test]
+    async fn create_answer_should_fail_with_non_existent_uuid(pool: PgPool) -> Result<(), String> {
         let dao = AnswerDaoImpl::new(pool);
         let result = dao
             .create_answer(Answer {
@@ -258,9 +242,10 @@ mod answer_tests {
         }
     }
 
-    #[tokio::test]
-    async fn create_answer_should_fail_if_database_error_occcurs() -> Result<(), String> {
-        let pool = create_test_pool().await;
+    #[sqlx::test]
+    async fn create_answer_should_fail_if_database_error_occcurs(
+        pool: PgPool,
+    ) -> Result<(), String> {
         let dao = AnswerDaoImpl::new(pool.clone());
 
         pool.close().await;
@@ -289,9 +274,8 @@ mod answer_tests {
         }
     }
 
-    #[tokio::test]
-    async fn create_answer_should_succeed() -> Result<(), String> {
-        let pool = create_test_pool().await;
+    #[sqlx::test]
+    async fn create_answer_should_succeed(pool: PgPool) -> Result<(), String> {
         let question_dao = QuestionDaoImpl::new(pool.clone());
         let answer_dao = AnswerDaoImpl::new(pool);
 
@@ -318,9 +302,8 @@ mod answer_tests {
         }
     }
 
-    #[tokio::test]
-    async fn get_answers_should_fail_with_malformd_uuid() -> Result<(), String> {
-        let pool = create_test_pool().await;
+    #[sqlx::test]
+    async fn get_answers_should_fail_with_malformd_uuid(pool: PgPool) -> Result<(), String> {
         let dao = AnswerDaoImpl::new(pool);
         let result = dao.get_answers("marformed".to_string()).await;
 
@@ -341,9 +324,8 @@ mod answer_tests {
         }
     }
 
-    #[tokio::test]
-    async fn get_answers_should_if_database_error_occurs() -> Result<(), String> {
-        let pool = create_test_pool().await;
+    #[sqlx::test]
+    async fn get_answers_should_if_database_error_occurs(pool: PgPool) -> Result<(), String> {
         let question_dao = QuestionDaoImpl::new(pool.clone());
         let answer_dao = AnswerDaoImpl::new(pool.clone());
 
@@ -376,9 +358,8 @@ mod answer_tests {
         }
     }
 
-    #[tokio::test]
-    async fn get_answers_should_succeed() -> Result<(), String> {
-        let pool = create_test_pool().await;
+    #[sqlx::test]
+    async fn get_answers_should_succeed(pool: PgPool) -> Result<(), String> {
         let question_dao = QuestionDaoImpl::new(pool.clone());
         let answer_dao = AnswerDaoImpl::new(pool);
 
@@ -412,9 +393,8 @@ mod answer_tests {
         }
     }
 
-    #[tokio::test]
-    async fn delete_answer_should_fail_with_malformed_uuid() -> Result<(), String> {
-        let pool = create_test_pool().await;
+    #[sqlx::test]
+    async fn delete_answer_should_fail_with_malformed_uuid(pool: PgPool) -> Result<(), String> {
         let dao = AnswerDaoImpl::new(pool);
         let result = dao.delete_answer("malformed".to_string()).await;
 
@@ -435,9 +415,8 @@ mod answer_tests {
         }
     }
 
-    #[tokio::test]
-    async fn delete_answer_should_succeed() -> Result<(), String> {
-        let pool = create_test_pool().await;
+    #[sqlx::test]
+    async fn delete_answer_should_succeed(pool: PgPool) -> Result<(), String> {
         let question_dao = QuestionDaoImpl::new(pool.clone());
         let answer_dao = AnswerDaoImpl::new(pool);
 
